@@ -116,6 +116,16 @@ const defaultScenarios: Scenario[] = [
   },
 ]
 
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+function duplicateName(base: string, existing: string[]): string {
+  const candidate = `${base} Copy`
+  if (!existing.includes(candidate)) return candidate
+  let n = 2
+  while (existing.includes(`${base} Copy ${n}`)) n++
+  return `${base} Copy ${n}`
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────
 
 export default function AnalyzePage() {
@@ -183,6 +193,17 @@ export default function AnalyzePage() {
     setTimeout(() => setSaveStatus('idle'), 2000)
   }
 
+  const handleDuplicate = () => {
+    if (scenarios.length >= 3) return
+    const source = scenarios[activeIndex]
+    const newIndex = scenarios.length
+    setScenarios((prev) => [
+      ...prev,
+      { ...source, id: generateId(), name: duplicateName(source.name, prev.map((s) => s.name)) },
+    ])
+    setActiveIndex(newIndex)
+  }
+
   return (
     <>
     <div className="min-h-screen bg-slate-50 print:hidden">
@@ -241,7 +262,17 @@ export default function AnalyzePage() {
           </div>
         </div>
 
-        <ScenarioTabs names={names} activeIndex={activeIndex} onSwitch={setActiveIndex} />
+        <div className="flex items-center gap-4">
+          <ScenarioTabs names={names} activeIndex={activeIndex} onSwitch={setActiveIndex} />
+          {scenarios.length < 3 && (
+            <button
+              onClick={handleDuplicate}
+              className="shrink-0 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors"
+            >
+              + Duplicate
+            </button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
           <div className="space-y-6">

@@ -35,6 +35,31 @@ const strategyLabel: Record<string, string> = {
   'house-hack': 'House Hack',
 }
 
+type SortKey = 'updated-desc' | 'updated-asc' | 'name-asc' | 'cash-flow-desc' | 'cap-rate-desc'
+type FilterKey = 'all' | 'long-term-rental' | 'house-hack'
+
+function applySortFilter(deals: SavedDeal[], sort: SortKey, filter: FilterKey): SavedDeal[] {
+  const filtered =
+    filter === 'all'
+      ? deals
+      : deals.filter((d) => {
+          const active = d.scenarios[d.activeIndex] ?? d.scenarios[0]
+          return active.property.strategy === filter
+        })
+
+  return [...filtered].sort((a, b) => {
+    if (sort === 'updated-desc')
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    if (sort === 'updated-asc')
+      return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+    if (sort === 'name-asc') return a.name.localeCompare(b.name)
+    const ao = computeOutputs(a.scenarios[a.activeIndex] ?? a.scenarios[0])
+    const bo = computeOutputs(b.scenarios[b.activeIndex] ?? b.scenarios[0])
+    if (sort === 'cash-flow-desc') return bo.monthlyCashFlow - ao.monthlyCashFlow
+    return bo.capRate - ao.capRate // 'cap-rate-desc'
+  })
+}
+
 // ─── DealCard ──────────────────────────────────────────────────────────────
 
 interface DealCardProps {
@@ -211,16 +236,18 @@ export default function Dashboard() {
   const router = useRouter()
   const [deals, setDeals] = useState<SavedDeal[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [sortBy, setSortBy] = useState<SortKey>('updated-desc')
+  const [filterBy, setFilterBy] = useState<FilterKey>('all')
 
   useEffect(() => {
     function init() {
-      setDeals(loadAllDeals().slice().reverse()) // newest first
+      setDeals(loadAllDeals())
       setLoaded(true)
     }
     init()
   }, [])
 
-  const refresh = () => setDeals(loadAllDeals().slice().reverse())
+  const refresh = () => setDeals(loadAllDeals())
 
   const handleDelete = (id: string) => {
     deleteDeal(id)
@@ -234,22 +261,69 @@ export default function Dashboard() {
 
   const handleOpen = (id: string) => router.push(`/analyze?id=${id}`)
 
-  // Render nothing until localStorage is read to avoid layout flicker
   if (!loaded) return <div className="h-64" />
-
   if (deals.length === 0) return <EmptyState />
 
+  const visibleDeals = applySortFilter(deals, sortBy, filterBy)
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-      {deals.map((deal) => (
-        <DealCard
-          key={deal.id}
-          deal={deal}
-          onOpen={handleOpen}
-          onDelete={handleDelete}
-          onRename={handleRename}
-        />
-      ))}
+    <div className="space-y-4">
+      {/* Sort + filter controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5">
+          {(['all', 'long-term-rental', 'house-hack'] as const).map((key) => (
+            <button
+              key={key}
+              onClick={() => setFilterBy(key)}
+              className={[
+                'text-xs font-medium px-3 py-1.5 rounded-full transition-colors',
+                filterBy === key
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300',
+              ].join(' ')}
+            >
+              {key === 'all' ? 'All' : key === 'long-term-rental' ? 'Long-Term Rental' : 'House Hack'}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortKey)}
+          className="text-xs text-slate-600 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white outline-none focus:border-indigo-400 cursor-pointer"
+        >
+          <option value="updated-desc">Last updated (newest)</option>
+          <option value="updated-asc">Last updated (oldest)</option>
+          <option value="name-asc">Name (A–Z)</option>
+          <option value="cash-flow-desc">Cash flow (highest)</option>
+          <option value="cap-rate-desc">Cap rate (highest)</option>
+        </select>
+      </div>
+
+      {/* Deal grid or empty-filter message */}
+      {visibleDeals.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-sm text-slate-500 mb-3">No deals match this filter.</p>
+          <button
+            onClick={() => setFilterBy('all')}
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+          >
+            Show all deals
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {visibleDeals.map((deal) => (
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              onOpen={handleOpen}
+              onDelete={handleDelete}
+              onRename={handleRename}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
