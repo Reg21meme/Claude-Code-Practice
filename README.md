@@ -1,6 +1,6 @@
 # DealScope
 
-This is a real product-style project I built primarily through Claude Code, using a prompt-driven workflow to plan, generate, refine, and ship the app step by step.
+This is a real product-style project I built primarily through Claude Code, using a prompt-driven workflow to plan, generate, refine, and ship the app step by step. I included my session file for those interested in how I prompt engineered this.
 
 DealScope is a local-first real estate deal analyzer for long-term rental and house-hack properties. It helps you model deals quickly, compare multiple scenarios, and understand whether a property actually works before you buy it.
 
@@ -141,13 +141,3 @@ Then open:
 ```text
 http://localhost:3000
 ```
-
-````
-
-The issue was just broken code fences. After you paste this into `README.md`, save it and run:
-
-```bash id="l8eh6w"
-git add README.md
-git commit -m "docs: fix README formatting"
-git push
-````
