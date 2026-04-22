@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DealScope
 
-## Getting Started
+This is a real product-style project I built primarily through Claude Code, using a prompt-driven workflow to plan, generate, refine, and ship the app step by step.
 
-First, run the development server:
+DealScope is a local-first real estate deal analyzer for long-term rental and house-hack properties. It helps you model deals quickly, compare multiple scenarios, and understand whether a property actually works before you buy it.
+
+## What it does
+
+DealScope lets you:
+
+- analyze a rental property with realistic assumptions
+- model financing, renovation, rent, vacancy, and operating expenses
+- compare **3 scenarios** side by side:
+  - Base Case
+  - Optimistic
+  - Conservative
+- instantly view key investment metrics:
+  - monthly payment
+  - monthly cash flow
+  - annual cash flow
+  - cap rate
+  - cash-on-cash ROI
+  - DSCR
+  - total cash needed
+
+The goal is to replace messy spreadsheets with a cleaner, faster, more visual workflow.
+
+## Why I built it
+
+I wanted to build something that felt like actual software, not just a tutorial app.
+
+Most beginner projects are too simple to feel useful. I wanted a project with:
+
+- real business value
+- meaningful calculations
+- multiple user flows
+- clean UI
+- structured architecture
+- room to grow into a full product
+
+Real estate deal analysis was a strong fit because it combines forms, calculations, validation, comparison views, and reporting in one app.
+
+## Built with Claude Code
+
+This project was developed in a step-by-step Claude Code workflow.
+
+Instead of dumping one giant prompt and hoping for the best, I built it in phases:
+
+1. logic foundation
+2. single-scenario analyzer UI
+3. three-scenario comparison
+4. persistence/dashboard work
+5. PDF export planned next
+
+That workflow made it easier to keep the code organized, review each change, and avoid turning the project into AI-generated spaghetti.
+
+## Current feature set
+
+### Implemented
+- landing page
+- analyzer page
+- property details form
+- financing assumptions
+- renovation assumptions
+- rental assumptions
+- operating expense assumptions
+- live calculation updates
+- three-scenario comparison
+- responsive UI
+- separated calculation and validation logic
+
+### In progress / planned
+- local persistence and saved deals dashboard
+- PDF export
+- advanced reporting
+- more strategy presets like Airbnb and BRRRR
+
+## Tech stack
+
+- **Next.js**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+
+## Project structure
+
+```text
+src/
+  app/
+    page.tsx
+    analyze/
+      page.tsx
+
+  components/
+    analyze/
+    shared/
+
+  lib/
+    calculators/
+    validators/
+
+  types/
+
+## Architecture notes
+
+A big goal of this project was keeping the logic clean.
+
+- calculation logic lives in pure TypeScript utility files
+- validation logic is separated from UI
+- UI components stay focused on rendering and interaction
+- analyzer behavior is built in phases instead of all at once
+
+## Key formulas included
+
+DealScope currently calculates:
+
+- loan amount
+- mortgage payment
+- total cash needed
+- effective monthly rent
+- operating expenses
+- NOI
+- monthly cash flow
+- annual cash flow
+- cap rate
+- cash-on-cash ROI
+- DSCR
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  
+Then open:
+``` bash
+http://localhost:3000
